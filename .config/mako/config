@@ -1,0 +1,12 @@
+# mako
+
+font=JetBrains Mono Nerd Font 14
+
+background-color=#202020
+text-color=#efe1d3
+
+border-color=#474343
+border-radius=6
+
+height=700
+width=500

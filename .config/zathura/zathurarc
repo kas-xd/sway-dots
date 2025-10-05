@@ -1,0 +1,19 @@
+# font
+set font "JetBrains Mono Nerd Font"
+
+# colors
+set index-bg "#202020"
+set index-fg "#d2d2d2"
+set index-active-bg "#bf5151"
+set index-active-fg "#202020"
+
+set inputbar-bg "#bf5151"
+set inputbar-fg "#202020"
+
+set statusbar-fg "#d2d2d2"
+set statusbar-bg "#202020"
+
+set recolor-lightcolor "#202020"
+set recolor-darkcolor "#d2d2d2"
+set recolor "true"
+set recolor-keephue "true"
