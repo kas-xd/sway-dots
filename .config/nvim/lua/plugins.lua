@@ -1,11 +1,9 @@
 vim.pack.add({
 	{ src = "https://github.com/ellisonleao/gruvbox.nvim" },
 	{ src = "https://github.com/stevearc/oil.nvim" },
-	{ src = "https://github.com/echasnovski/mini.pick" },
+	{ src = "https://github.com/echasnovski/mini.nvim" },
 	{ src = "https://github.com/nvim-treesitter/nvim-treesitter" },
 	{ src = "https://github.com/neovim/nvim-lspconfig" },
-	{ src = "https://github.com/echasnovski/mini.pairs" },
-	{ src = "https://github.com/echasnovski/mini.completion" },
 	{ src = "https://github.com/nvim-lualine/lualine.nvim" },
 	{ src = "https://github.com/mbbill/undotree" },
 	{ src = "https://github.com/rafamadriz/friendly-snippets" },
@@ -14,44 +12,40 @@ vim.pack.add({
 	{ src = "https://github.com/lewis6991/gitsigns.nvim" },
 })
 
--- Mini plugins
-require('mini.completion').setup({
+require("mini.completion").setup({
 	delay = { completion = 100, info = 100, signature = 50 },
 	window = {
-		info = { height = 25, width = 80, border = 'rounded' },
-		signature = { height = 25, width = 80, border = 'rounded' },
+		info = { height = 25, width = 80, border = "rounded" },
+		signature = { height = 25, width = 80, border = "rounded" },
 	},
 })
+require("mini.pick").setup()
+require("mini.pairs").setup()
+require("mini.jump").setup()
 
-require('mini.pick').setup()
-require('mini.pairs').setup()
-
--- Oil
-require('oil').setup({
-	view_options = { show_hidden = true }
+require("oil").setup({
+	view_options = { show_hidden = true },
 })
 
--- Lualine
-require('lualine').setup({
+require("lualine").setup({
 	options = {
-		theme = 'gruvbox',
+		theme = "gruvbox",
 		icons_enabled = false,
-		component_separators = '|',
-		section_separators = '',
+		component_separators = "|",
+		section_separators = "",
 	},
 	sections = {
-		lualine_b = {'branch', 'diff', 'diagnostics'},
+		lualine_b = { "branch", "diff", "diagnostics" },
 	},
 })
 
--- Gitsigns
-require('gitsigns').setup({
+require("gitsigns").setup({
 	signs = {
-		add          = { text = '+' },
-		change       = { text = '~' },
-		delete       = { text = '_' },
-		topdelete    = { text = '‾' },
-		changedelete = { text = '~' },
+		add = { text = "+" },
+		change = { text = "~" },
+		delete = { text = "_" },
+		topdelete = { text = "‾" },
+		changedelete = { text = "~" },
 	},
 	current_line_blame = true,
 	current_line_blame_opts = {
@@ -59,60 +53,55 @@ require('gitsigns').setup({
 	},
 })
 
--- Treesitter
-require('nvim-treesitter.configs').setup({
-	ensure_installed = { 'python', 'lua', 'markdown', 'typst', },
+require("nvim-treesitter.configs").setup({
+	ensure_installed = { "python", "lua", "markdown", "typst" },
 	auto_install = true,
 	highlight = { enable = true },
 	indent = { enable = true },
 })
 
--- LuaSnip with pre-made snippets
-local ls = require('luasnip')
-require('luasnip.loaders.from_vscode').lazy_load()
+local ls = require("luasnip")
+require("luasnip.loaders.from_vscode").lazy_load()
 
--- Snippet navigation
-vim.keymap.set({'i', 's'}, '<C-l>', function() 
-	if ls.expand_or_jumpable() then 
-		ls.expand_or_jump() 
-	end 
-end, { desc = 'Expand/jump snippet' })
+vim.keymap.set({ "i", "s" }, "<C-l>", function()
+	if ls.expand_or_jumpable() then
+		ls.expand_or_jump()
+	end
+end, { desc = "Expand/jump snippet" })
 
-vim.keymap.set({'i', 's'}, '<C-h>', function() 
-	if ls.jumpable(-1) then 
-		ls.jump(-1) 
-	end 
-end, { desc = 'Jump snippet backward' })
+vim.keymap.set({ "i", "s" }, "<C-h>", function()
+	if ls.jumpable(-1) then
+		ls.jump(-1)
+	end
+end, { desc = "Jump snippet backward" })
 
--- Tab completion
-vim.keymap.set('i', '<Tab>', function()
+vim.keymap.set("i", "<Tab>", function()
 	if vim.fn.pumvisible() == 1 then
-		return '<C-n>'
+		return "<C-n>"
 	elseif ls.expand_or_jumpable() then
-		return '<Plug>luasnip-expand-or-jump'
+		return "<Plug>luasnip-expand-or-jump"
 	else
-		return '<Tab>'
+		return "<Tab>"
 	end
 end, { expr = true })
 
-vim.keymap.set('i', '<S-Tab>', function()
+vim.keymap.set("i", "<S-Tab>", function()
 	if vim.fn.pumvisible() == 1 then
-		return '<C-p>'
+		return "<C-p>"
 	elseif ls.jumpable(-1) then
-		return '<Plug>luasnip-jump-prev'
+		return "<Plug>luasnip-jump-prev"
 	else
-		return '<S-Tab>'
+		return "<S-Tab>"
 	end
 end, { expr = true })
 
-vim.keymap.set('i', '<CR>', [[pumvisible() ? "\<C-y>" : "\<CR>"]], { expr = true })
+vim.keymap.set("i", "<CR>", [[pumvisible() ? "\<C-y>" : "\<CR>"]], { expr = true })
 
--- Conform (formatter)
-require('conform').setup({
+require("conform").setup({
 	formatters_by_ft = {
-		lua = { 'stylua' },
-		python = { 'black' },
-		typst = { 'typstfmt' },
+		lua = { "stylua" },
+		python = { "black" },
+		typst = { "typstfmt" },
 	},
 	format_on_save = {
 		timeout_ms = 500,
@@ -120,7 +109,6 @@ require('conform').setup({
 	},
 })
 
--- Manual format keybind
-vim.keymap.set('n', '<leader>lf', function()
-	require('conform').format({ async = true, lsp_fallback = true })
-end, { desc = 'Format buffer' })
+vim.keymap.set("n", "<leader>lf", function()
+	require("conform").format({ async = true, lsp_fallback = true })
+end, { desc = "Format buffer" })
