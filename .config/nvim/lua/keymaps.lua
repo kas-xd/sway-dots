@@ -8,8 +8,6 @@ vim.keymap.set('n', '<leader>h', '<cmd>Pick help<CR>', { desc = 'Help tags' })
 vim.keymap.set('n', '<leader>e', '<cmd>Oil<CR>', { desc = 'File explorer' })
 vim.keymap.set('n', '<leader>u', '<cmd>UndotreeToggle<CR>', { desc = 'Undo tree' })
 
-vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Previous diagnostic' })
-vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Next diagnostic' })
 vim.keymap.set('n', '<leader>ld', vim.diagnostic.open_float, { desc = 'Show diagnostic' })
 vim.keymap.set('n', '<leader>ll', vim.diagnostic.setloclist, { desc = 'Diagnostic list' })
 

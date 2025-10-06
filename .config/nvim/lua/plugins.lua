@@ -55,7 +55,7 @@ require("gitsigns").setup({
 
 require("nvim-treesitter.configs").setup({
 	ensure_installed = { "python", "lua", "markdown", "typst" },
-	auto_install = true,
+	auto_install = false,
 	highlight = { enable = true },
 	indent = { enable = true },
 })
