@@ -14,12 +14,7 @@ vim.opt.updatetime = 200
 vim.opt.expandtab = true
 vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
-vim.opt.smartindent = true
-vim.opt.autoindent = true
-vim.opt.breakindent = true
-vim.opt.completeopt = 'menuone,noinsert,noselect'
-vim.opt.undofile = true
+vim.opt.completeopt = { 'menuone', 'noinsert', 'noselect' }
 
 -- plugins
 vim.pack.add({
@@ -47,55 +42,62 @@ require('gitsigns').setup({
 })
 
 -- oil
-require('oil').setup({
-  skip_confirm_for_simple_edits = true,
-  view_options = { show_hidden = true },
-})
+require('oil').setup({ view_options = { show_hidden = true } })
 
--- mini.nvim
-require('mini.pairs').setup()
-require('mini.jump').setup()
+-- mini
+require('mini.statusline').setup()
 require('mini.pick').setup()
-require('mini.snippets').setup()
-require('mini.completion').setup({
-  window = { info = { border = 'rounded' }, signature = { border = 'rounded' } },
-})
-require('mini.ai').setup()
 require('mini.surround').setup()
+require('mini.ai').setup()
 require('mini.comment').setup()
+require('mini.jump').setup()
+require('mini.pairs').setup()
+require('mini.completion').setup({
+  window = { info = { border = 'single' }, signature = { border = 'single' } },
+})
+pcall(require, 'mini.snippets')
 
 -- statusline
-local statusline = require('mini.statusline')
-statusline.setup({ use_icons = false })
 vim.api.nvim_set_hl(0, 'StatusLine',   { fg = '#ebdbb2', bg = '#3c3836' })
 vim.api.nvim_set_hl(0, 'StatusLineNC', { fg = '#a89984', bg = '#282828' })
 
 -- treesitter
 require('nvim-treesitter.configs').setup({
+  auto_install = true,
   ensure_installed = { 'lua', 'python', 'typst' },
   highlight = { enable = true, additional_vim_regex_highlighting = false },
   indent = { enable = true },
 })
+pcall(function() require('nvim-treesitter.install').update({ with_sync = false })() end)
+
+-- completion
+local function _t(k) return vim.api.nvim_replace_termcodes(k, true, true, true) end
+vim.keymap.set('i', '<Tab>', function()
+  if vim.fn.pumvisible() == 1 then return _t('<C-n>') end
+  return _t('<Tab>')
+end, { expr = true, silent = true })
+vim.keymap.set('i', '<S-Tab>', function()
+  if vim.fn.pumvisible() == 1 then return _t('<C-p>') end
+  return _t('<S-Tab>')
+end, { expr = true, silent = true })
+
+-- undotree
+vim.g.undotree_WindowLayout = 2
+vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<CR>", { desc = "Undotree" })
 
 -- keymaps
 vim.keymap.set("n", "<leader>w", "<cmd>write<CR>", { desc = "Save" })
 vim.keymap.set("n", "<leader>q", "<cmd>quit<CR>",  { desc = "Quit" })
-vim.keymap.set("n", "<leader>f", "<cmd>Pick files<CR>",     { desc = "Files" })
-vim.keymap.set("n", "<leader>g", "<cmd>Pick grep_live<CR>", { desc = "Grep" })
-vim.keymap.set("n", "<leader>b", "<cmd>Pick buffers<CR>",   { desc = "Buffers" })
-vim.keymap.set("n", "<leader>h", "<cmd>Pick help<CR>",      { desc = "Help" })
+vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set("n", "<leader>e", "<cmd>Oil<CR>",            { desc = "Explorer" })
-vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<CR>", { desc = "UndoTree" })
-
--- lsp maps
-vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename,      { desc = 'Rename' })
-vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, { desc = 'Code Action' })
-vim.keymap.set('n', 'gd', vim.lsp.buf.definition,          { desc = 'Definition' })
-vim.keymap.set('n', 'gr', vim.lsp.buf.references,          { desc = 'References' })
-vim.keymap.set('n', 'K',  vim.lsp.buf.hover,               { desc = 'Hover' })
+vim.keymap.set("n", "<leader>f", "<cmd>Pick files<CR>", { desc = "Files" })
+vim.keymap.set("n", "<leader>b", "<cmd>Pick buffers<CR>", { desc = "Buffers" })
+vim.keymap.set("n", "<leader>g", "<cmd>Pick grep_live<CR>", { desc = "Live Grep" })
+vim.keymap.set("n", "<leader>h", "<cmd>Pick help<CR>", { desc = "Help" })
 
 -- diagnostics
 vim.diagnostic.config({
+  float = { border = 'single' },
   virtual_text = true, signs = true, underline = true,
   update_in_insert = false, severity_sort = true,
 })
@@ -113,25 +115,48 @@ vim.lsp.config('lua_ls', {
     Lua = {
       workspace = { checkThirdParty = false },
       diagnostics = { globals = { 'vim', 'require' } },
+      hint = { enable = true },
     },
   },
 })
+
 vim.lsp.config('pyright', {})
 vim.lsp.config('tinymist', {})
+
+-- lsp keymaps
+local map = function(mode, lhs, rhs, desc) vim.keymap.set(mode, lhs, rhs, { desc = desc }) end
+map('n', 'gd',  vim.lsp.buf.definition,         'Definition')
+map('n', 'gD',  vim.lsp.buf.declaration,        'Declaration')
+map('n', 'gi',  vim.lsp.buf.implementation,     'Implementation')
+map('n', 'go',  vim.lsp.buf.type_definition,    'Type Def')
+map('n', 'gr',  vim.lsp.buf.references,         'References')
+map('n', 'K',   vim.lsp.buf.hover,              'Hover')
+map('n', '<leader>rn', vim.lsp.buf.rename,      'Rename')
+map('n', '<leader>ca', vim.lsp.buf.code_action, 'Code Action')
+map({ 'n', 'x' }, '<leader>o', function() vim.lsp.buf.format({ async = true }) end, 'Format')
 
 vim.api.nvim_create_autocmd('LspAttach', {
   callback = function(args)
     vim.bo[args.buf].omnifunc = 'v:lua.MiniCompletion.completefunc_lsp'
-    pcall(vim.lsp.inlay_hint.enable, true, args.buf)
+    do
+      local ih = vim.lsp.inlay_hint
+      if type(ih) == 'table' and type(ih.enable) == 'function' then
+        pcall(ih.enable, args.buf, true)
+      else
+        pcall(ih, args.buf, true)
+      end
+    end
   end,
 })
 
+-- mason
 require('mason').setup()
 require('mason-lspconfig').setup({
   ensure_installed = { 'lua_ls', 'pyright', 'tinymist' },
-  automatic_enable = false,
+  automatic_installation = true,
 })
 
 for _, name in ipairs({ 'lua_ls', 'pyright', 'tinymist' }) do
   pcall(vim.lsp.enable, name)
 end
+
