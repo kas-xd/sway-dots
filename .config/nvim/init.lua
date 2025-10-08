@@ -27,6 +27,7 @@ vim.pack.add({
   { src = 'https://github.com/williamboman/mason.nvim' },
   { src = 'https://github.com/mason-org/mason-lspconfig.nvim' },
   { src = 'https://github.com/nvim-treesitter/nvim-treesitter' },
+  { src = 'https://github.com/nvim-tree/nvim-web-devicons' },
 })
 
 -- theme
@@ -42,7 +43,14 @@ require('gitsigns').setup({
 })
 
 -- oil
-require('oil').setup({ view_options = { show_hidden = true } })
+require('nvim-web-devicons').setup({
+  override = {},
+  default = true,
+})
+require('oil').setup({
+  view_options = { show_hidden = true },
+  columns = { "icon" },
+})
 
 -- mini
 require('mini.statusline').setup()
@@ -159,4 +167,3 @@ require('mason-lspconfig').setup({
 for _, name in ipairs({ 'lua_ls', 'pyright', 'tinymist' }) do
   pcall(vim.lsp.enable, name)
 end
-
