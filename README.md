@@ -1,9 +1,6 @@
-## Description
-Who needs autotiling, blur, shadows and animations anyway?
-
-
 ## Stack
-- swaywm, swayidle, swaylock, swaybg, waybar
+- swaywm, swayidle, swaylock, swaybg
+- waybar
 - zsh
 - kitty terminal
 - mako notification daemon
