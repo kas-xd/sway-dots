@@ -9,7 +9,7 @@ set $menu fuzzel
 
 ### Output configuration
 
-output * bg ~/Pictures/Wallpaper/mountain.jpg fill
+output * bg ~/.walls/mountain.jpg fill
 output eDP-1 mode 1920x1200@60hz
 #output DP-1 mode 1920x1080@240hz
 
