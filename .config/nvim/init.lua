@@ -10,9 +10,7 @@ vim.opt.clipboard = "unnamedplus"
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.incsearch = true
-vim.opt.updatetime = 200
-vim.opt.expandtab = true
-vim.opt.shiftwidth = 4
+vim.opt.updatetime = 200 vim.opt.expandtab = true vim.opt.shiftwidth = 4
 vim.opt.tabstop = 4
 vim.opt.completeopt = { 'menuone', 'noinsert', 'noselect' }
 
@@ -21,38 +19,24 @@ vim.pack.add({
   { src = 'https://github.com/ellisonleao/gruvbox.nvim' },
   { src = 'https://github.com/stevearc/oil.nvim' },
   { src = 'https://github.com/echasnovski/mini.nvim' },
-  { src = 'https://github.com/lewis6991/gitsigns.nvim' },
   { src = 'https://github.com/mbbill/undotree' },
   { src = 'https://github.com/neovim/nvim-lspconfig' },
-  { src = 'https://github.com/williamboman/mason.nvim' },
-  { src = 'https://github.com/mason-org/mason-lspconfig.nvim' },
   { src = 'https://github.com/nvim-treesitter/nvim-treesitter' },
-  { src = 'https://github.com/nvim-tree/nvim-web-devicons' },
+  { src = 'https://github.com/f-person/git-blame.nvim' },
 })
 
 -- theme
 require('gruvbox').setup({ transparent_mode = true })
 vim.cmd.colorscheme('gruvbox')
 
--- gitsigns
-require('gitsigns').setup({
-  signs = {
-    add = { text = '▎' }, change = { text = '▎' }, delete = { text = '▁' },
-    topdelete = { text = '▔' }, changedelete = { text = '▎' },
-  },
-})
+-- git
+vim.g.gitblame_enabled = 1
+vim.g.gitblame_message_template = ' <author> • <date> • <summary> • <sha>'
+vim.g.gitblame_date_format = '%Y-%m-%d %H:%M'
+vim.g.gitblame_virtual_text_column = 0        -- 0 = at EOL
+vim.api.nvim_set_hl(0, 'GitBlameVirtualText', { link = 'Comment' })
 
--- oil
-require('nvim-web-devicons').setup({
-  override = {},
-  default = true,
-})
-require('oil').setup({
-  view_options = { show_hidden = true },
-  columns = { "icon" },
-})
-
--- mini
+-- mini.nvim
 require('mini.statusline').setup()
 require('mini.pick').setup()
 require('mini.surround').setup()
@@ -63,9 +47,18 @@ require('mini.pairs').setup()
 require('mini.completion').setup({
   window = { info = { border = 'single' }, signature = { border = 'single' } },
 })
-pcall(require, 'mini.snippets')
+pcall(function()
+  require('mini.snippets').setup()
+  require('mini.icons').setup()
+end)
 
--- statusline
+-- oil
+require('oil').setup({
+  view_options = { show_hidden = true },
+  columns = { 'icon' },
+})
+
+-- statusline colors
 vim.api.nvim_set_hl(0, 'StatusLine',   { fg = '#ebdbb2', bg = '#3c3836' })
 vim.api.nvim_set_hl(0, 'StatusLineNC', { fg = '#a89984', bg = '#282828' })
 
@@ -78,7 +71,7 @@ require('nvim-treesitter.configs').setup({
 })
 pcall(function() require('nvim-treesitter.install').update({ with_sync = false })() end)
 
--- completion
+-- completion keys
 local function _t(k) return vim.api.nvim_replace_termcodes(k, true, true, true) end
 vim.keymap.set('i', '<Tab>', function()
   if vim.fn.pumvisible() == 1 then return _t('<C-n>') end
@@ -98,10 +91,10 @@ vim.keymap.set("n", "<leader>w", "<cmd>write<CR>", { desc = "Save" })
 vim.keymap.set("n", "<leader>q", "<cmd>quit<CR>",  { desc = "Quit" })
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 vim.keymap.set("n", "<leader>e", "<cmd>Oil<CR>",            { desc = "Explorer" })
-vim.keymap.set("n", "<leader>f", "<cmd>Pick files<CR>", { desc = "Files" })
-vim.keymap.set("n", "<leader>b", "<cmd>Pick buffers<CR>", { desc = "Buffers" })
-vim.keymap.set("n", "<leader>g", "<cmd>Pick grep_live<CR>", { desc = "Live Grep" })
-vim.keymap.set("n", "<leader>h", "<cmd>Pick help<CR>", { desc = "Help" })
+vim.keymap.set("n", "<leader>f", "<cmd>Pick files<CR>",     { desc = "Files" })
+vim.keymap.set("n", "<leader>b", "<cmd>Pick buffers<CR>",   { desc = "Buffers" })
+vim.keymap.set("n", "<leader>/", "<cmd>Pick grep_live<CR>", { desc = "Live Grep" })
+vim.keymap.set("n", "<leader>h", "<cmd>Pick help<CR>",      { desc = "Help" })
 
 -- diagnostics
 vim.diagnostic.config({
@@ -114,7 +107,7 @@ vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Next Diag' })
 vim.keymap.set("n", "<leader>dd", vim.diagnostic.open_float, { desc = "Show Diag" })
 vim.keymap.set("n", "<leader>dl", vim.diagnostic.setloclist, { desc = "Diag List" })
 
--- lsp
+-- LSP
 local lsp_caps = require('mini.completion').get_lsp_capabilities()
 vim.lsp.config('*', { capabilities = lsp_caps })
 
@@ -127,11 +120,10 @@ vim.lsp.config('lua_ls', {
     },
   },
 })
-
 vim.lsp.config('pyright', {})
 vim.lsp.config('tinymist', {})
 
--- lsp keymaps
+-- LSP attach
 local map = function(mode, lhs, rhs, desc) vim.keymap.set(mode, lhs, rhs, { desc = desc }) end
 map('n', 'gd',  vim.lsp.buf.definition,         'Definition')
 map('n', 'gD',  vim.lsp.buf.declaration,        'Declaration')
@@ -146,22 +138,13 @@ map({ 'n', 'x' }, '<leader>o', function() vim.lsp.buf.format({ async = true }) e
 vim.api.nvim_create_autocmd('LspAttach', {
   callback = function(args)
     vim.bo[args.buf].omnifunc = 'v:lua.MiniCompletion.completefunc_lsp'
-    do
-      local ih = vim.lsp.inlay_hint
-      if type(ih) == 'table' and type(ih.enable) == 'function' then
-        pcall(ih.enable, args.buf, true)
-      else
-        pcall(ih, args.buf, true)
-      end
+    local ih = vim.lsp.inlay_hint
+    if type(ih) == 'table' and type(ih.enable) == 'function' then
+      pcall(ih.enable, args.buf, true)
+    else
+      pcall(ih, args.buf, true)
     end
   end,
-})
-
--- mason
-require('mason').setup()
-require('mason-lspconfig').setup({
-  ensure_installed = { 'lua_ls', 'pyright', 'tinymist' },
-  automatic_installation = true,
 })
 
 for _, name in ipairs({ 'lua_ls', 'pyright', 'tinymist' }) do
